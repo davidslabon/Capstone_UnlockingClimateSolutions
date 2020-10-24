@@ -5,7 +5,7 @@
 ## Introduction
 
 After eight intensive weeks of listening, reading and coding at NeueFische Data Science Coding Bootcamp, the theoratical training phase comes to an end. With this capstone project we'll apply our newly acquired knowledge about Python, EDA, Machine Learning on real-world problems. 
-As a highly motivated group of four students we decided to not only face one of the worlds biggest challenges with our project, but also an official kaggle competition[Kaggle - CDP Competion](https://www.kaggle.com/c/cdp-unlocking-climate-solutions/).
+As a highly motivated group of four students we decided to not only face one of the worlds biggest challenges with our project, but also an official [Kaggle competition](https://www.kaggle.com/c/cdp-unlocking-climate-solutions/).
 Our four-week project particularly focuses on the development of meaningful KPIs and the usage of NLP and clustering alogrithms.
 
 ## Mission Statement
