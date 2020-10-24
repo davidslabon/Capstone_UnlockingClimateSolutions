@@ -1,0 +1,6 @@
+﻿Dataset licenses for the public data from CDP: CDP Open Database License.  
+
+See 
+https://data.cdp.net/Governance/2018-Full-Cities-Dataset/wk5j-36yv, and https://data.cdp.net/Governance/2019-Full-Cities-Dataset/iapx-bpuk, and https://data.cdp.net/Governance/2020-Full-Cities-Dataset/eja6-zden for more detail.
+
+
