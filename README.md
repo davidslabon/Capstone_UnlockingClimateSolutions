@@ -10,9 +10,9 @@ Our four-week project particularly focuses on the development of meaningful KPIs
 
 ## Mission Statement
 
-We develop relevant KPIs to help cities and companies optimise and communicate their own climate protection strategy. The aim is to identify and visualise activities and projects that strike the best possible balance between climate protection and aspects of social justice. 
+*"We develop relevant KPIs to help cities and companies optimise and communicate their own climate protection strategy. The aim is to identify and visualise activities and projects that strike the best possible balance between climate protection and aspects of social justice. 
  
-We rely on an extensive EDA of the CDP-Surveys with more than 1.5 million annual observations. A main focus of our work is the generation of new features and the explanation of the insights gained from them. For the interpretation and classification of unstructured free text responses we use NLP / Sentiment Analysis techniques. We use cluster algorithms to show the connections between social justice and environmental protection, as well as between the interests of the public sector and private companies.
+We rely on an extensive EDA of the CDP-Surveys with more than 1.5 million annual observations. A main focus of our work is the generation of new features and the explanation of the insights gained from them. For the interpretation and classification of unstructured free text responses we use NLP / Sentiment Analysis techniques. We use cluster algorithms to show the connections between social justice and environmental protection, as well as between the interests of the public sector and private companies."*
 
 ## Results & Achievements
 tbd
@@ -22,15 +22,16 @@ tbd
 
 ## Tools & Packages
 
-*Python*
-Pandas
-NumPy
-Matplotlib
-Seaborn
-SciKit-Learn
+**Python**
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- SciKit-Learn
+- Tensorflow
 
-*Others*
-Amazon Athena
+**Others**
+- Amazon Athena
 
 ## Directory & File Description
 
