@@ -24,6 +24,7 @@ tbd
 
 **Python**
 - Pandas
+- SpaCy
 - NumPy
 - Matplotlib
 - Seaborn
