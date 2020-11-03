@@ -5,3 +5,5 @@ original_dataset
 *.DS_Store
 David*
 Olaf*
+.~lock.*.*
+
