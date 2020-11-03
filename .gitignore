@@ -4,4 +4,6 @@ original_dataset
 *.csv
 *.DS_Store
 David*
+Olaf*
 .~lock.*.*
+
