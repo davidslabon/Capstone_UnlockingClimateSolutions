@@ -30,6 +30,8 @@ still tbd
 - Seaborn
 - SciKit-Learn
 - Tensorflow
+- KeplerGl
+- Pygal
 
 **Others**
 - Amazon Athena
