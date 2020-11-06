@@ -1,5 +1,12 @@
-original_dataset/
 .ipynb_checkpoints/
+.vscode/
+
+__pycache__/
+original_dataset/
+
+.~lock.*.*
+.DS_Store
+
 *.csv
 *.pkl
 *.bkp
@@ -10,8 +17,10 @@ original_dataset/
 *.prj
 *.shp
 *.shx
-.~lock.*.*
-*.DS_Store
+
 David*
 Olaf*
+Tobi*
+Felix*
+
 Tobi_David_CDP.ipynb
