@@ -14,10 +14,17 @@ rcParams = {
     "lines.markersize" : 10,
     "xtick.labelsize" : 16,
     "ytick.labelsize" : 16,
+    "axes.small_titlesize" : 12,
+    "axes.small_titleweight" :"bold",
+    "axes.small_labelsize" : 9,
+    "lines.small_linewidth" : 3,
+    "lines.small_markersize" : 10,
+    "xtick.small_labelsize" : 9,
+    "ytick.small_labelsize" : 9,
             }
 
 
-def get_response_pivot(data, year, questionnumber, columnnumber='all', pivot=True):
+def get_response_pivot(data, year, questionnumber, columnnumber='all', pivot=True, add_info=False):
     '''A query function that creates a pivot with multilevel index on questions and columns'''
     
     # create list of unique column numbers if no numbers were given
@@ -26,18 +33,43 @@ def get_response_pivot(data, year, questionnumber, columnnumber='all', pivot=Tru
         columnnumber = sorted(columnnumber)
         
     # get data from basic dataframe
-    df = data.query(
-     ('question_number == @questionnumber & column_number == @columnnumber & year == @year')
-         ).loc[:,[
-                'account_number',
-                'row_number',
-                'row_name',
-                'question_number',
-                'question_name',
-                'column_number',
-                'column_name',
-                'response_answer'
-                ]]
+    if add_info:
+        
+        df = data.query(
+         ('question_number == @questionnumber & column_number == @columnnumber & year == @year')
+             ).loc[:,[
+                    'account_number',
+                    'row_number',
+                    'row_name',
+                    'question_number',
+                    'question_name',
+                    'column_number',
+                    'column_name',
+                    'response_answer',
+                    'year',
+                    'entity',
+                    'city',
+                    'population',
+                    'region',
+                    'country',
+                      ]]
+   
+    elif not add_info:
+        df = data.query(
+         ('question_number == @questionnumber & column_number == @columnnumber & year == @year')
+            ).loc[:,[
+                    'account_number',
+                    'row_number',
+                    'row_name',
+                    'question_number',
+                    'question_name',
+                    'column_number',
+                    'column_name',
+                    'response_answer',
+                    'year',
+                    'entity',
+                      ]]
+        
        
     # print question
     print_question(df, questionnumber, columnnumber)
@@ -76,7 +108,6 @@ def get_response_pivot(data, year, questionnumber, columnnumber='all', pivot=Tru
         return df
         
 
-
 def print_question(data, questionnumber, columnnumber):
     """Print unique column / question combination"""
     
@@ -94,7 +125,7 @@ def print_question(data, questionnumber, columnnumber):
                                     .replace("]","")}''')
 
 
-# First, we start by importing the different csv files and continue by concatenating the files into one dataframe.
+
 def get_data(path, filename_start):
     '''a function to store the content of a directory into a pd dataframe'''
     
@@ -122,7 +153,7 @@ def get_data(path, filename_start):
 
 
 
-# This function comes from Silas and could be an idea for further development.
+
 def meta(df, transpose=True):
     """
     This function returns a dataframe that lists:
@@ -234,7 +265,35 @@ def question_number_cleaning(question_number_string):
     return q_nr_l1, q_nr_l2, q_nr_l3
 
 
-def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v"):
+
+
+def get_pct_freq(data):
+    """Returns the absolute and relativ frequncy as count and % for the values of a series.
+    
+    Attributes:
+        - data: has to be a series
+        
+    Output:
+        - Series of absolut values, Series of % values
+    """
+    
+    val_c = data.value_counts()
+    perc = round((data.value_counts(normalize=True)*100),1)
+    
+    return val_c, perc 
+
+
+def identify_theme(strng):
+    if strng[0] == 'C':
+        result = 'climate'
+    elif strng[0] == 'W':
+        result = 'water'
+    else:
+        result = 'other'
+    return result
+
+
+def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v", ax=None):
     """Creates a frequency plot based on a count values function.
     
     Attributes:
@@ -250,21 +309,21 @@ def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v"):
         x = data.values
         y = data.index
         
-    fig = sns.barplot(x=x, y=y, palette="hls", orient=orient)
-    plt.title(
+    fig = sns.barplot(x=x, y=y, palette="hls", orient=orient, ax=ax)
+    fig.set_title(
         label=title, 
         fontdict={
             'fontsize': rcParams['axes.titlesize'],
             'fontweight' : rcParams['axes.titleweight'],
                 }
             )
-    plt.xlabel(
+    fig.set_xlabel(
         xlabel=xlabel,
         fontdict={
         'fontsize': rcParams['axes.labelsize'],
             }
         )
-    plt.ylabel(
+    fig.set_ylabel(
         ylabel=ylabel,
         fontdict={
         'fontsize': rcParams['axes.labelsize'],
@@ -274,21 +333,129 @@ def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v"):
     return fig
 
 
-
-def get_pct_freq(data):
-    """Returns the absolute and relativ frequncy as count and % for the values of a series.
+def plot_small_no_responses(df, ax=None):
+    '''Create a small subplot with the number total number of responses
+     Attributes:
+     - ax: Define ax if you want to use in subplot / facetgrid
+     '''
     
-    Attributes:
-        - data: has to be a series
+    # calculate number of responses
+    no_responses = [len(df)]
+    
+    # plot results
+    x = ["Evaluable"]
+    y =  no_responses
+    xlabel="" 
+    ylabel="Count" 
+    title="No of Responses"
+    orient="v"
+    fig = sns.barplot(x=x, y=y, palette="hls", orient="v", ax=ax)
+    
+    fig.set_title(
+        label=title, 
+        fontdict={
+            'fontsize': rcParams['axes.small_titlesize'],
+            'fontweight' : rcParams['axes.small_titleweight'],
+                }
+            )
+    fig.set_xlabel(
+        xlabel=xlabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
+    fig.set_ylabel(
+        ylabel=ylabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
         
-    Output:
-        - Series of absolut values, Series of % values
-    """
-    
-    val_c = data.value_counts
-    perc = round((data.value_counts(normalize=True)*100),1)
-    
-    return val_c, perc 
-    
+    return fig   
 
 
+def plot_small_responses_yoy(df, ax=None, plt_type="total"):
+    '''Create a small subplot with the number of responses per year
+    Attributes:
+     - ax: Define ax if you want to use in subplot / facetgrid
+     - plt_type: choose either "total" or "perc"
+    '''
+    
+    # calculate responses per year
+    # preprocess / calculate data for visualization
+    years = df.year
+    counts, perc = get_pct_freq(years)
+    values = counts if plt_type == "total" else perc
+                          
+    # plot results
+    x = values.index
+    y =  values.values
+    xlabel="Year" 
+    ylabel="Count" if plt_type == "total" else "% of Total Count"
+    title="Responses per Year"
+    orient="v"
+    fig = sns.barplot(x=x, y=y, palette="hls", ax=ax)
+    
+    fig.set_title(
+        label=title, 
+        fontdict={
+            'fontsize': rcParams['axes.small_titlesize'],
+            'fontweight' : rcParams['axes.small_titleweight'],
+                }
+            )
+    fig.set_xlabel(
+        xlabel=xlabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
+    fig.set_ylabel(
+        ylabel=ylabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
+      
+    return fig   
+
+
+def plot_small_responses_per_ptcp(df, ax=None):
+    '''Create a small subplot with the number of responses per year
+    Attributes:
+     - ax: Define ax if you want to use in subplot / facetgrid
+     - plt_type: choose either "total" or "perc"
+    '''
+    
+    # calculate responses per year
+    # preprocess / calculate data for visualization
+    data = df.account_number.value_counts()
+    
+                          
+    # plot results
+    xlabel="# Responses to this question" 
+    ylabel= "# Participant"
+    title="# Responses per Participant"
+    orient="v"
+    fig = sns.histplot(data, palette="hls", ax=ax)
+    
+    fig.set_title(
+        label=title, 
+        fontdict={
+            'fontsize': rcParams['axes.small_titlesize'],
+            'fontweight' : rcParams['axes.small_titleweight'],
+                }
+            )
+    fig.set_xlabel(
+        xlabel=xlabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
+    fig.set_ylabel(
+        ylabel=ylabel,
+        fontdict={
+        'fontsize': rcParams['axes.small_labelsize'],
+            }
+        )
+      
+    return fig   
