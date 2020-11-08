@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
 
 # define global styling params
@@ -14,17 +15,20 @@ rcParams = {
     "lines.markersize" : 10,
     "xtick.labelsize" : 16,
     "ytick.labelsize" : 16,
-    "axes.small_titlesize" : 12,
+    "patches.labelsize": 12,
+    "axes.small_titlesize" : 10,
     "axes.small_titleweight" :"bold",
-    "axes.small_labelsize" : 9,
+    "axes.small_labelsize" : 8,
     "lines.small_linewidth" : 3,
-    "lines.small_markersize" : 10,
-    "xtick.small_labelsize" : 9,
-    "ytick.small_labelsize" : 9,
+    "lines.small_markersize" : 8,
+    "xtick.small_labelsize" : 8,
+    "ytick.small_labelsize" : 8,
+    "patches.small_labelsize": 8,
             }
 
+# QUERY FUNCTIONS
 
-def get_response_pivot(data, year, questionnumber, columnnumber='all', pivot=True, add_info=False):
+def get_response_pivot(data, questionnumber, columnnumber='all', pivot=True, add_info=False, year=[2018, 2019, 2020]):
     '''A query function that creates a pivot with multilevel index on questions and columns'''
     
     # create list of unique column numbers if no numbers were given
@@ -125,7 +129,6 @@ def print_question(data, questionnumber, columnnumber):
                                     .replace("]","")}''')
 
 
-
 def get_data(path, filename_start):
     '''a function to store the content of a directory into a pd dataframe'''
     
@@ -149,8 +152,6 @@ def get_data(path, filename_start):
     print(f'''\nA dataframe with {all_data.shape[0]} rows and {all_data.shape[1]} columns has been created!\nColumn names are now lower case and spaces are replaced by "_".''')
     
     return all_data
-
-
 
 
 
@@ -202,7 +203,7 @@ def meta(df, transpose=True):
 
     return metadata
 
-    return all_data
+
 
 
 
@@ -266,7 +267,6 @@ def question_number_cleaning(question_number_string):
 
 
 
-
 def get_pct_freq(data):
     """Returns the absolute and relativ frequncy as count and % for the values of a series.
     
@@ -283,14 +283,41 @@ def get_pct_freq(data):
     return val_c, perc 
 
 
-def identify_theme(strng):
-    if strng[0] == 'C':
-        result = 'climate'
-    elif strng[0] == 'W':
-        result = 'water'
-    else:
-        result = 'other'
-    return result
+
+
+## PLOTTING FUNCTIONS
+
+def create_3x3grid(size=(15,10), orient="vertical"):
+    """Creates an 3x3 plotting grid with one big and three small plots.
+    Attributes:
+    - size: tuple(height, width)
+    - type: 'vertical', 'horizontal' 
+      #vertical: big plot spans on columns 1 + 2
+      #horizontal: big plot spans on rows 1+2
+    
+    Output:
+    - returns 5 variables containging the grid specification and the 4 plotting grids information.
+    """
+    
+       
+    # Create basic figure 
+    fig = plt.figure(1, figsize=(size))
+
+    # set up grid with subplots of different sizes
+    gs=GridSpec(3,3) # 3 rows, 3 columns
+    
+    if orient == "vertical":
+        ax_b1=fig.add_subplot(gs[:,:2]) # span all rows and columns 1 + 2
+        ax_s1=fig.add_subplot(gs[0,2]) # first row, third column
+        ax_s2=fig.add_subplot(gs[1,2]) # second row, third column
+        ax_s3=fig.add_subplot(gs[2,2]) # third row, third columns
+    elif orient == "horizontal":
+        ax_b1=fig.add_subplot(gs[:2,:]) # span all columns and rows 1 + 2
+        ax_s1=fig.add_subplot(gs[2,0]) # third row, first column
+        ax_s2=fig.add_subplot(gs[2,1]) # third row, second column
+        ax_s3=fig.add_subplot(gs[2,2]) # third row, third columns
+        
+    return fig, ax_b1, ax_s1, ax_s2, ax_s3
 
 
 def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v", ax=None):
@@ -415,8 +442,14 @@ def plot_small_responses_yoy(df, ax=None, plt_type="total"):
         'fontsize': rcParams['axes.small_labelsize'],
             }
         )
-      
+    
+    for p in fig.patches:
+             fig.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=rcParams["patches.small_labelsize"], fontweight="bold", color='black', xytext=(0, 5),
+                 textcoords='offset points')
+
     return fig   
+
 
 
 def plot_small_responses_per_ptcp(df, ax=None):
@@ -428,15 +461,15 @@ def plot_small_responses_per_ptcp(df, ax=None):
     
     # calculate responses per year
     # preprocess / calculate data for visualization
-    data = df.account_number.value_counts()
-    
+    data = df.groupby(["account_number", "year"], as_index=False)["response_answer"].count()
+    data.year = data.year.astype(str)
                           
     # plot results
-    xlabel="# Responses to this question" 
-    ylabel= "# Participant"
-    title="# Responses per Participant"
+    xlabel="No Responses to this question" 
+    ylabel= "Count"
+    title="Responses per Participant"
     orient="v"
-    fig = sns.histplot(data, palette="hls", ax=ax)
+    fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax)
     
     fig.set_title(
         label=title, 
@@ -459,3 +492,22 @@ def plot_small_responses_per_ptcp(df, ax=None):
         )
       
     return fig   
+
+
+## HELPER FUNCTIONS
+
+def sorter(column):
+    """A small helper function to sort in a specific order, e.g. for categorical data"""
+    mapper = {name: order for order, name in enumerate(order)}
+    return column.map(mapper)
+
+def identify_theme(strng):
+    if strng[0] == 'C':
+        result = 'climate'
+    elif strng[0] == 'W':
+        result = 'water'
+    else:
+        result = 'other'
+    return result
+
+
