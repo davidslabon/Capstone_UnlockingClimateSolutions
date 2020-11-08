@@ -469,8 +469,8 @@ def plot_small_responses_per_ptcp(df, ax=None):
     ylabel= "Count"
     title="Responses per Participant"
     orient="v"
+
     fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
-    
     fig.set_title(
         label=title, 
         fontdict={
@@ -501,7 +501,6 @@ def sorter(column):
     mapper = {name: order for order, name in enumerate(order)}
     return column.map(mapper)
 
-
 def identify_theme(strng):
     if strng[0] == 'C':
         result = 'climate'
@@ -510,6 +509,7 @@ def identify_theme(strng):
     else:
         result = 'other'
     return result
+
 
 
 def cut_labels(fig, axis, max_length=10):
@@ -526,5 +526,4 @@ def cut_labels(fig, axis, max_length=10):
               for i in fig.yaxis.get_ticklabels()]
 
         return fig.yaxis.set_ticklabels(new_labels)  
-
 
