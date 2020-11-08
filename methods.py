@@ -469,8 +469,8 @@ def plot_small_responses_per_ptcp(df, ax=None):
     ylabel= "Count"
     title="Responses per Participant"
     orient="v"
-    fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax)
-    
+
+    fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
     fig.set_title(
         label=title, 
         fontdict={
@@ -510,4 +510,20 @@ def identify_theme(strng):
         result = 'other'
     return result
 
+
+
+def cut_labels(fig, axis, max_length=10):
+    '''Shortens the labels of an axis to a given length.'''
+    
+    if axis == "x":
+        new_labels = [i.get_text()[0:max_length] if len(i.get_text()) > max_length else i.get_text() 
+              for i in fig.xaxis.get_ticklabels()]
+
+        return fig.xaxis.set_ticklabels(new_labels)  
+    
+    elif axis == "y":
+        new_labels = [i.get_text()[0:max_length] if len(i.get_text()) > max_length else i.get_text() 
+              for i in fig.yaxis.get_ticklabels()]
+
+        return fig.yaxis.set_ticklabels(new_labels)  
 
