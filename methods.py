@@ -28,7 +28,7 @@ rcParams = {
 
 # QUERY FUNCTIONS
 
-def get_response_pivot(data, questionnumber, columnnumber='all', pivot=True, add_info=False, year=[2018, 2019, 2020]):
+def get_response_pivot(data, questionnumber, columnnumber='all', pivot=True, add_info=False, year=["2018", "2019", "2020"]):
     '''A query function that creates a pivot with multilevel index on questions and columns'''
     
     # create list of unique column numbers if no numbers were given
@@ -233,7 +233,7 @@ def get_var_indexed_responses(df, question_number, select_col, select_answer_par
 
 
 
-def get_responses(data, question_number, column_number=[1], row_number=[1], theme='combined',year=[2018,2019,2020]):
+def get_responses(data, question_number, column_number=[1], row_number=[1], theme='combined',year=["2018","2019","2020"]):
     '''’A query function that creates a new dataframe with responses from the given data.'''
     # Reduktion auf ausgewählte Menge:
     responses = data[(data.theme == theme) &
@@ -495,7 +495,13 @@ def plot_small_responses_per_ptcp(df, ax=None):
     ylabel= "Count"
     title="Responses per Participant"
     orient="v"
-    fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
+    
+    # Exclude questions with max 1 response per participant from KDE-plot
+    if data.response_answer.nunique() > 1:
+        fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
+    else:
+        fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=False, ax=ax, multiple="stack")
+    
     fig.set_title(
         label=title, 
         fontdict={
