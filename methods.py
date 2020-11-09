@@ -204,6 +204,32 @@ def meta(df, transpose=True):
     return metadata
 
 
+def get_var_indexed_responses(df, question_number, select_col, select_answer_param, show_col):
+    """A function that allows to query tables-like responses with variable number of rows.
+    
+    Arguments:
+     - df: dataframe to filter, should be either like cir or cor
+     - question_number: top level question to observe, e.g. "C2.3a"
+     - select_col: column that holds the filter criteria, e.g. "1"
+     - select_answer_param: criteria to filter the select_col with, e.g. "Risk 1", "Risk 2", etc.
+     - show_col: The colum that should be used to show the answer
+     
+    Output:
+    a filtered data-frame
+    
+    """
+    
+    # create base_df and add selection_key
+    base_df = df.copy().query('question_number == @question_number & (column_number == @select_col | column_number == @show_col)')
+    base_df["select_key"] = base_df.year.astype(str)+"_"+base_df.account_number.astype(str)+"_"+base_df.row_number.astype(str)
+    
+    # get selection_keys from select_col
+    selection = list(base_df.copy().query('question_number == @question_number & column_number == @select_col & response_answer == @select_answer_param').select_key)
+    
+    # query dataframe based on show_col and selection
+    response_df = base_df.copy().query('question_number == @question_number & column_number == @show_col and select_key == @selection')
+    
+    return response_df
 
 
 
@@ -469,7 +495,6 @@ def plot_small_responses_per_ptcp(df, ax=None):
     ylabel= "Count"
     title="Responses per Participant"
     orient="v"
-
     fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
     fig.set_title(
         label=title, 
@@ -501,6 +526,7 @@ def sorter(column):
     mapper = {name: order for order, name in enumerate(order)}
     return column.map(mapper)
 
+
 def identify_theme(strng):
     if strng[0] == 'C':
         result = 'climate'
@@ -509,7 +535,6 @@ def identify_theme(strng):
     else:
         result = 'other'
     return result
-
 
 
 def cut_labels(fig, axis, max_length=10):
