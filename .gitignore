@@ -17,6 +17,8 @@ original_dataset/
 *.prj
 *.shp
 *.shx
+*.ods
+*.sql
 
 David*
 Olaf*
