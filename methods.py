@@ -4,6 +4,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+from IPython.display import display_html, display ,Image
 
 
 # define global styling params
@@ -423,7 +424,11 @@ def plot_small_no_responses(df, ax=None):
         'fontsize': rcParams['axes.small_labelsize'],
             }
         )
-        
+    for p in fig.patches:
+         fig.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+             ha='center', va='center', fontsize=rcParams["patches.small_labelsize"], fontweight="bold", color='black', xytext=(0, 5),
+             textcoords='offset points')
+   
     return fig   
 
 
@@ -477,7 +482,6 @@ def plot_small_responses_yoy(df, ax=None, plt_type="total"):
     return fig   
 
 
-
 def plot_small_responses_per_ptcp(df, ax=None):
     '''Create a small subplot with the number of responses per year
     Attributes:
@@ -525,6 +529,49 @@ def plot_small_responses_per_ptcp(df, ax=None):
     return fig   
 
 
+def plot_pareto(data, xlabel, ylabel, title, orient="v"):
+    """Plots a pareto bar chart
+    Attributes:
+    - data: list or pd.series
+    - xlabel: labeltext as string
+    - ylabel: labeltext as string
+    - title: labeltext as string
+    - orient: orientation "h" or "v"
+    
+    Function is not working in combination with GridSpec-Tool!"""
+
+    # calculate pareto values 
+    weights = data / data.sum()
+    cumsum = weights.cumsum()
+
+    # create subplot fig and first ax
+    fig, ax1 = plt.subplots()
+    
+    # Configure main plot
+    ax1 = plot_freq_of_cv(data=data, xlabel=xlabel, ylabel=ylabel,
+                            title=title, orient=orient)
+    
+    if orient == "v":
+        # add 2nd graph to plot
+        ax2 = ax1.twinx()
+        ax2 = sns.lineplot(x = data.index, y = cumsum, palette="hls")
+        ax2.set_yticks([])
+        ax2.set_ylabel(None)
+    elif orient == "h":
+        # add 2nd graph to plot
+        ax2 = ax1.twinx()
+        ax2 = sns.lineplot(x = cumsum, y = data.index, palette="hls")
+        ax2.set_xticks([])
+        ax2.set_xlabel(None)
+  
+    formatted_weights = ["{0:.0%}".format(x) for x in cumsum]
+    for i, txt in enumerate(formatted_weights):
+        ax2.annotate(txt, (data.index[i], cumsum[i]))  
+        
+    return ax1
+
+
+
 ## HELPER FUNCTIONS
 
 def sorter(column):
@@ -557,4 +604,102 @@ def cut_labels(fig, axis, max_length=10):
               for i in fig.yaxis.get_ticklabels()]
 
         return fig.yaxis.set_ticklabels(new_labels)  
+    
+    
+def add_patches(fig, orient='v'):
+    """adding value patches to plot
+    Attributes:
+    - fig = plot figure, preferably barplot, histplot countplot or equivalent
+    - orient = orientation'v' or 'h'
+    """
+    if orient =='v':
+        for p in fig.patches:
+             fig.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                 ha='center', va='center', fontsize=rcParams["patches.small_labelsize"], color='black', xytext=(0, 5),
+                 textcoords='offset points')
+        return fig 
+    elif orient == 'h':
+        for p in fig.patches:
+             fig.annotate("%.0f" % p.get_width(), (p.get_width(), p.get_y() + p.get_height()),
+                 ha='center', va='center', fontsize=rcParams["patches.small_labelsize"], color='black', xytext=(5, 7),
+                 textcoords='offset points')
+        return fig 
+    
+    
+def rotate_labels(fig, axis, rotation):
+    """A function to rotate axis labels
+    Attributes:
+    - fig: figure, plot to work on
+    - axis: "y" or "x" - axis to rotate
+    - rotation: integer - degrees rotation"""
+        
+    if axis == "x":
+        for item in fig.get_xticklabels():
+              item.set_rotation(rotation)
+        return fig
+    
+    elif axis == "y":
+        for item in fig.get_yticklabels():
+              item.set_rotation(rotation)
+        return fig
+    
+    
+def get_distribition_df(data):
+    """Creates a dateframe showing value counts and relative distribution of the series' values
+    Attributes: 
+    - data: pd.Series or array / list of values"""
+
+    print("Unique answers: " +str(data.nunique()))
+    print("Total count: " +str(len(data)))
+    df = pd.DataFrame()
+    df["counts"] = data.value_counts()
+    df["perc"] = df.counts / df.counts.sum()
+    df.perc = df.perc.apply(lambda x:"{0:.1%}".format(x))
+    return df
+
+def display_side_by_side(*args):
+    """show multiple dataframes in one output
+    Attributes:
+    - *args: dataframes
+    """
+    
+    html_str=''
+    for df in args:
+        html_str+=df.to_html()
+    display_html(html_str.replace('table','table style="display:inline"'),raw=True)
+    
+
+def compare_columns(data, questionnumber, select_col, compare_col):
+    """Takes a question with multiple columns / rows and presents the input columns next to each other.
+    Attributes:
+    - data: A question dataframe, e.g. cir / cor
+    - questionnumber: string - question_number to query
+    - select_col: first column to merge on
+    - compare_col: column to merge side by side"""
+    
+    df = data.copy()
+    df.response_answer = df.response_answer.apply(lambda x: x.split(">")[0]) 
+    answers = df.response_answer     # get responses from data frame
+
+    # build a dateframe with two answer columns next to each other
+    # query information, create common key per row
+    base_df = df.copy().query('column_number == @select_col | column_number == @compare_col')
+    base_df["select_key"] = base_df.year.astype(str)+"_"+base_df.account_number.astype(str)+"_"+base_df.row_number.astype(str)
+
+    # create "left" dataframe 
+    select_df = base_df.query('column_number ==@select_col').loc[:,["year", "response_answer", "select_key"]]
+    select_df.rename(columns={'response_answer': "column_"+str(select_col)}, inplace=True)
+    select_df.set_index('select_key', inplace=True)
+
+    # create corrosponding "right" dataframe
+    compare_df = base_df.query('column_number ==@compare_col').loc[:,["response_answer", "select_key"]]
+    compare_df.rename(columns={'response_answer': "column_"+str(compare_col)}, inplace=True)
+    compare_df.set_index('select_key', inplace=True)
+
+    #concat dfs
+    result = pd.merge(select_df, compare_df, left_index=True, right_index=True).reset_index()
+    return result
+    
+
+
 
