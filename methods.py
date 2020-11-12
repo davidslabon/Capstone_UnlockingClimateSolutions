@@ -12,6 +12,7 @@ rcParams = {
     "axes.titlesize" : 20,
     "axes.titleweight" :"bold",
     "axes.labelsize" : 12,
+    "axes.palette": "mako",
     "lines.linewidth" : 3,
     "lines.markersize" : 10,
     "xtick.labelsize" : 16,
@@ -363,7 +364,7 @@ def plot_freq_of_cv(data, title, xlabel, ylabel, orient="v", ax=None):
         x = data.values
         y = data.index
         
-    fig = sns.barplot(x=x, y=y, palette="hls", orient=orient, ax=ax)
+    fig = sns.barplot(x=x, y=y, palette=rcParams["axes.palette"], orient=orient, ax=ax)
     fig.set_title(
         label=title, 
         fontdict={
@@ -403,7 +404,7 @@ def plot_small_no_responses(df, ax=None):
     ylabel="Count" 
     title="No of Responses"
     orient="v"
-    fig = sns.barplot(x=x, y=y, palette="hls", orient="v", ax=ax)
+    fig = sns.barplot(x=x, y=y, palette=rcParams["axes.palette"], orient="v", ax=ax)
     
     fig.set_title(
         label=title, 
@@ -452,7 +453,7 @@ def plot_small_responses_yoy(df, ax=None, plt_type="total"):
     ylabel="Count" if plt_type == "total" else "% of Total Count"
     title="Responses per Year"
     orient="v"
-    fig = sns.barplot(x=x, y=y, palette="hls", ax=ax)
+    fig = sns.barplot(x=x, y=y,palette=rcParams["axes.palette"], ax=ax)
     
     fig.set_title(
         label=title, 
@@ -502,9 +503,9 @@ def plot_small_responses_per_ptcp(df, ax=None):
     
     # Exclude questions with max 1 response per participant from KDE-plot
     if data.response_answer.nunique() > 1:
-        fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=True, ax=ax, multiple="stack")
+        fig = sns.histplot(data, x="response_answer", hue="year", palette=rcParams["axes.palette"], bins=20, kde=True, ax=ax, multiple="stack")
     else:
-        fig = sns.histplot(data, x="response_answer", hue="year", palette="hls", bins=20, kde=False, ax=ax, multiple="stack")
+        fig = sns.histplot(data, x="response_answer", hue="year", palette=rcParams["axes.palette"], bins=20, kde=False, ax=ax, multiple="stack")
     
     fig.set_title(
         label=title, 
@@ -554,13 +555,13 @@ def plot_pareto(data, xlabel, ylabel, title, orient="v"):
     if orient == "v":
         # add 2nd graph to plot
         ax2 = ax1.twinx()
-        ax2 = sns.lineplot(x = data.index, y = cumsum, palette="hls")
+        ax2 = sns.lineplot(x = data.index, y = cumsum, palette=rcParams["axes.palette"])
         ax2.set_yticks([])
         ax2.set_ylabel(None)
     elif orient == "h":
         # add 2nd graph to plot
         ax2 = ax1.twinx()
-        ax2 = sns.lineplot(x = cumsum, y = data.index, palette="hls")
+        ax2 = sns.lineplot(x = cumsum, y = data.index, palette=rcParams["axes.palette"])
         ax2.set_xticks([])
         ax2.set_xlabel(None)
   
