@@ -117,18 +117,25 @@ def get_response_pivot(data, questionnumber, columnnumber='all', pivot=True, add
 def print_question(data, questionnumber, columnnumber):
     """Print unique column / question combination"""
     
-    print(f'Question {questionnumber}:')
-    print(str(data.loc[data.question_number==questionnumber]
+    q = f'''Q{questionnumber}:{str(data.loc[data.question_number==questionnumber]
                                 .question_name.unique())
                                 .replace("[","")
-                                .replace("]",""))
+                                .replace("]","")}'''
+    
+    print(q)
+    
     print('------------------------------------------------------------------------------------------')
         
     for c in columnnumber:
-        print(f'''{c}: {(str(data.loc[data.column_number== c]
+        col = f'''{c}: {(str(data.loc[data.column_number== c]
                                     .column_name.unique()))
                                     .replace("[","")
-                                    .replace("]","")}''')
+                                    .replace("]","")}'''
+        print(col)
+    
+    q_string = f'{q} /C{col}'
+    
+    return q_string
 
 
 def get_data(path, filename_start):
