@@ -11,6 +11,8 @@ import dash
 from dash.dependencies import Input, Output
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SANDSTONE])
+server = app.server
+
 logo = "https://www.flaticon.com/svg/static/icons/svg/3749/3749877.svg"
 cs = [[0, "rgb(207, 219, 206)"],[1, "rgb(53, 66, 52)"]]
 

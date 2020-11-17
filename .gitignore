@@ -6,6 +6,9 @@ original_dataset/
 
 .~lock.*.*
 .DS_Store
+venv
+*.__pycache__
+.env
 
 *.csv
 *.pkl
