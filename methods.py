@@ -709,5 +709,73 @@ def compare_columns(data, questionnumber, select_col, compare_col):
     return result
     
 
+def rename_and_merge(original_df, feature_df, feature, left_on=None, right_on=None, how='left'):
 
+    '''this function helps to quickly rename the new feature column and to merge it to the original disclosure dataframe, drop duplicates as well as the key_0 column
+    original_df: disclosure dataframe that the feature is mapped onto
+    feature: information that is supposed to be added to the original df. Needs to be passed on as a list.
+    feature_df: dataframe with the information that is supposed to be added to the original df
+    left_on: information used for mapping the data. Default set to 'select_key'
+    right_on: information from feature df used for mapping. Default set to 'select_key'
+    how: default set to left'''
 
+    #create unique select key from year and account number in feature dataframe
+    feature_df["select_key"] = feature_df.year.astype(str)+"_"+feature_df.account_number.astype(str)
+    original_df["select_key"] = original_df.year.astype(str)+"_"+original_df.account_number.astype(str)
+
+    # rename response answer to the new feature in feature df
+    feature_df[feature] = feature_df["response_answer"]
+
+    # merge feature column to disclosure dataframe
+    if left_on is None:
+        left_on = original_df["select_key"]
+    
+    if right_on is None:
+        right_on = feature_df["select_key"]
+    
+
+    original_df = pd.merge(left=original_df,
+                          right=feature_df[feature],
+                          left_on=left_on,
+                          right_on=right_on,
+                          how=how)
+    original_df.drop_duplicates(inplace=True)
+    original_df.drop("key_0", axis=1, inplace=True)
+    original_df.drop("select_key", axis=1, inplace=True)
+    return original_df
+
+def split_response(df, column, sep=';', keep=False):
+    """
+    Split the values of a column and expand so the new DataFrame has one split
+    value per row. Filters rows where the column is missing.
+
+    Params
+    ------
+    df : pandas.DataFrame
+        dataframe with the column to split and expand
+    column : str
+        the column to split and expand
+    sep : str
+        the string used to split the column's values
+    keep : bool
+        whether to retain the presplit value as it's own row
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns a dataframe with the same columns as `df`.
+    """
+    indexes = list()
+    new_values = list()
+    df = df.dropna(subset=[column])
+    for i, presplit in enumerate(df[column].astype(str)):
+        values = presplit.split(sep)
+        if keep and len(values) > 1:
+            indexes.append(i)
+            new_values.append(presplit)
+        for value in values:
+            indexes.append(i)
+            new_values.append(value)
+    new_df = df.iloc[indexes, :].copy()
+    new_df[column] = new_values
+    return new_df
