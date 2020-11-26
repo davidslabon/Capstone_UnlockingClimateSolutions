@@ -44,6 +44,7 @@ Scoring sytem with the SCOREE methodology to measure the environmental and socia
 - E missions
 
 [Dashboard](https://score2-project.herokuapp.com/apps/dashboard) to visualize the results.
+[Dashboard Development](https://github.com/davidslabon/Capstone_Dashboard) 
 
 ## Future Work
 - Further analyzing of text answers with nlp 
@@ -64,10 +65,8 @@ Scoring sytem with the SCOREE methodology to measure the environmental and socia
 - Tensorflow
 - KeplerGl
 - Pygal
+- Plotly Dash
 
 **Others**
-- Amazon Athena
-
-## Directory & File Description
-
-- TBD
+- Amazon Web Services 
+- SQL
